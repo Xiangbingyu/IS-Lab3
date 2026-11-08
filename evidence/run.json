@@ -1,0 +1,362 @@
+{
+  "scope": "Local 127.0.0.1 simulated coupon service, no third-party target",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python_version": "3.13.9",
+  "method": "HTTP POST; two attempts per fresh coupon; parallel case synchronized at check/use window",
+  "scenarios": [
+    {
+      "mode": "vulnerable_sequential",
+      "execution": "sequential",
+      "requests": [
+        {
+          "request_id": "A",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "A",
+              "Host": "127.0.0.1:51554",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 200,
+            "reason": "OK",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:29 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "39"
+            },
+            "body": {
+              "accepted": true,
+              "total_redemptions": 1
+            }
+          }
+        },
+        {
+          "request_id": "B",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "B",
+              "Host": "127.0.0.1:51554",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 409,
+            "reason": "Conflict",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:29 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "40"
+            },
+            "body": {
+              "accepted": false,
+              "total_redemptions": 1
+            }
+          }
+        }
+      ],
+      "events": [
+        {
+          "sequence": 1,
+          "elapsed_ms": 14.926,
+          "request_id": "A",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 2,
+          "elapsed_ms": 15.287,
+          "request_id": "A",
+          "action": "check",
+          "used": false
+        },
+        {
+          "sequence": 3,
+          "elapsed_ms": 15.292,
+          "request_id": "A",
+          "action": "accepted",
+          "total_redemptions": 1
+        },
+        {
+          "sequence": 4,
+          "elapsed_ms": 17.406,
+          "request_id": "B",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 5,
+          "elapsed_ms": 17.415,
+          "request_id": "B",
+          "action": "check",
+          "used": true
+        },
+        {
+          "sequence": 6,
+          "elapsed_ms": 17.418,
+          "request_id": "B",
+          "action": "rejected",
+          "reason": "already_used"
+        }
+      ],
+      "final_state": {
+        "coupon_used": true,
+        "successful_redemptions": 1
+      }
+    },
+    {
+      "mode": "vulnerable_parallel",
+      "execution": "parallel",
+      "requests": [
+        {
+          "request_id": "A",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "A",
+              "Host": "127.0.0.1:51561",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 200,
+            "reason": "OK",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:29 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "39"
+            },
+            "body": {
+              "accepted": true,
+              "total_redemptions": 2
+            }
+          }
+        },
+        {
+          "request_id": "B",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "B",
+              "Host": "127.0.0.1:51561",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 200,
+            "reason": "OK",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:29 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "39"
+            },
+            "body": {
+              "accepted": true,
+              "total_redemptions": 1
+            }
+          }
+        }
+      ],
+      "events": [
+        {
+          "sequence": 1,
+          "elapsed_ms": 3.024,
+          "request_id": "A",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 2,
+          "elapsed_ms": 3.037,
+          "request_id": "A",
+          "action": "check",
+          "used": false
+        },
+        {
+          "sequence": 3,
+          "elapsed_ms": 3.041,
+          "request_id": "A",
+          "action": "waiting_at_race_window"
+        },
+        {
+          "sequence": 4,
+          "elapsed_ms": 14.739,
+          "request_id": "B",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 5,
+          "elapsed_ms": 14.755,
+          "request_id": "B",
+          "action": "check",
+          "used": false
+        },
+        {
+          "sequence": 6,
+          "elapsed_ms": 14.76,
+          "request_id": "B",
+          "action": "waiting_at_race_window"
+        },
+        {
+          "sequence": 7,
+          "elapsed_ms": 14.794,
+          "request_id": "B",
+          "action": "accepted",
+          "total_redemptions": 1
+        },
+        {
+          "sequence": 8,
+          "elapsed_ms": 14.99,
+          "request_id": "A",
+          "action": "accepted",
+          "total_redemptions": 2
+        }
+      ],
+      "final_state": {
+        "coupon_used": true,
+        "successful_redemptions": 2
+      }
+    },
+    {
+      "mode": "fixed_parallel",
+      "execution": "parallel",
+      "requests": [
+        {
+          "request_id": "A",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "A",
+              "Host": "127.0.0.1:51567",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 200,
+            "reason": "OK",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:30 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "39"
+            },
+            "body": {
+              "accepted": true,
+              "total_redemptions": 1
+            }
+          }
+        },
+        {
+          "request_id": "B",
+          "request": {
+            "method": "POST",
+            "path": "/redeem",
+            "headers": {
+              "X-Demo-User": "alice",
+              "X-Request-ID": "B",
+              "Host": "127.0.0.1:51567",
+              "Content-Length": "0"
+            },
+            "body": ""
+          },
+          "response": {
+            "status": 409,
+            "reason": "Conflict",
+            "headers": {
+              "Server": "BaseHTTP/0.6 Python/3.13.9",
+              "Date": "Sun, 08 Nov 2026 08:39:30 GMT",
+              "Content-Type": "application/json",
+              "Content-Length": "40"
+            },
+            "body": {
+              "accepted": false,
+              "total_redemptions": 1
+            }
+          }
+        }
+      ],
+      "events": [
+        {
+          "sequence": 1,
+          "elapsed_ms": 2.56,
+          "request_id": "A",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 2,
+          "elapsed_ms": 2.569,
+          "request_id": "A",
+          "action": "lock_acquired"
+        },
+        {
+          "sequence": 3,
+          "elapsed_ms": 2.571,
+          "request_id": "A",
+          "action": "check",
+          "used": false
+        },
+        {
+          "sequence": 4,
+          "elapsed_ms": 2.573,
+          "request_id": "A",
+          "action": "accepted",
+          "total_redemptions": 1
+        },
+        {
+          "sequence": 5,
+          "elapsed_ms": 3.247,
+          "request_id": "B",
+          "action": "received",
+          "path": "/redeem"
+        },
+        {
+          "sequence": 6,
+          "elapsed_ms": 3.254,
+          "request_id": "B",
+          "action": "lock_acquired"
+        },
+        {
+          "sequence": 7,
+          "elapsed_ms": 3.256,
+          "request_id": "B",
+          "action": "check",
+          "used": true
+        },
+        {
+          "sequence": 8,
+          "elapsed_ms": 3.261,
+          "request_id": "B",
+          "action": "rejected",
+          "reason": "already_used"
+        }
+      ],
+      "final_state": {
+        "coupon_used": true,
+        "successful_redemptions": 1
+      }
+    }
+  ]
+}
