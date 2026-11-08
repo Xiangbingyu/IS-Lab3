@@ -13,10 +13,6 @@
 | Date | 8 November 2026 |
 | Experiment | Locally simulated coupon redemption; no external target |
 
-The supplied DNS cache poisoning report was used as an organizational example
-only. The attack topic, local software, measured results, graph and analysis
-below concern a different experiment.
-
 ## 1. Purpose of the work
 
 The objective is to describe a concrete computer attack as a directed graph
